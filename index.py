@@ -4,6 +4,8 @@ import nltk
 import sys
 import getopt
 
+from vector_space_model import VectorSpaceModel
+
 def usage():
     print("usage: " + sys.argv[0] + " -i directory-of-documents -d dictionary-file -p postings-file")
 
@@ -13,8 +15,8 @@ def build_index(in_dir, out_dict, out_postings):
     then output the dictionary file and postings file
     """
     print('indexing...')
-    # This is an empty method
-    # Pls implement your code in below
+    VectorSpaceModel(in_dir, out_dict, out_postings).construct()
+    print('finished indexing')
 
 input_directory = output_file_dictionary = output_file_postings = None
 
