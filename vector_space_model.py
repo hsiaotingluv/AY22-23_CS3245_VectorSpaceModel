@@ -72,7 +72,7 @@ class VectorSpaceModel:
         all_doc_ids = self.get_all_doc_ids()
         terms = list() # a list of terms
         term_docFreq = {} # key: string, value: int { term : docFreq }
-        postings = {} # key: string, value: a dictionary { term : {docID : logTermFreqWeighting, docID : logTermFreqWeighting ...} }
+        postings = {} # key: string, value: a dictionary { term : {docID : term_freq, docID : term_freq ...} }
 
         for doc_id in all_doc_ids:
             doc_id = str(doc_id)
@@ -111,20 +111,20 @@ class VectorSpaceModel:
             # print("==========================================================================")
             # print("term_docFreq: ", term_docFreq) # key: string, value: int { term : docFreq }
             # print("==========================================================================")
-            # print("postings: ", postings) # key: string, value: a dictionary { term : {docID : logTermFreqWeighting, docID : logTermFreqWeighting ...} }
+            # print("postings: ", postings) # key: string, value: a dictionary { term : {docID : term_freq, docID : term_freq ...} }
             # print("==========================================================================")
             
         # normalise term frequency for each document
-        for term in postings: # key: string, value: a dictionary { term : {docID : logTermFreqWeighting, docID : logTermFreqWeighting ...} }
-            for doc_id in postings[term]:
-                term_freq = int(postings[term][doc_id])
-                # print("==========================================================================")
-                # print("term: ", term)
-                # print("postings[term]: ", postings[term])
-                # print("doc_id: ", doc_id)
-                # print("term_freq: ", term_freq)
-                # print("==========================================================================")
-                postings[term][doc_id] = 1 + math.log(term_freq, 10) # value as { docID : logTermFreqWeighting ... }
+        # for term in postings: # key: string, value: a dictionary { term : {docID : term_freq, docID : term_freq ...} }
+        #     for doc_id in postings[term]:
+        #         term_freq = int(postings[term][doc_id])
+        #         # print("==========================================================================")
+        #         # print("term: ", term)
+        #         # print("postings[term]: ", postings[term])
+        #         # print("doc_id: ", doc_id)
+        #         # print("term_freq: ", term_freq)
+        #         # print("==========================================================================")
+        #         postings[term][doc_id] = 1 + math.log10(term_freq) # value as { docID : term_freq ... }
                             
         terms.sort()
         self.write_to_disk(terms, term_docFreq, postings)
@@ -143,12 +143,15 @@ class VectorSpaceModel:
         posting_ref = 0
 
         for term in terms:
-            posting = postings[term] # {docID : logTermFreqWeighting, docID : logTermFreqWeighting ...}
+            posting = postings[term] # {docID : term_freq, docID : term_freq ...}
             docFreq = term_docFreq[term]
+            content = ""
 
-            for doc_id, log_term_freq_weighting in posting.items():
-                content = " (" + str(doc_id) + "," + str(log_term_freq_weighting) + ")" # (docID,logTermFreqWeighting) (docID,logTermFreqWeighting) ...
-            new_posting = term + content + "\n" # term (docID,logTermFreqWeighting) (docID,logTermFreqWeighting) ...
+            for doc_id, term_freq in posting.items():
+                # print("doc_id: ", doc_id)
+                # print("term_freq: ", term_freq)
+                content += " (" + str(doc_id) + "," + str(term_freq) + ")" # (docID,term_freq) (docID,term_freq) ...
+            new_posting = term + content + "\n" # term (docID,term_freq) (docID,term_freq) ...
             
             final_dictionary += term + " " + str(docFreq) + " " + str(posting_ref) + "\n" # term docFreq posting_ref
             final_postings += new_posting
