@@ -4,6 +4,8 @@ import nltk
 import sys
 import getopt
 
+from vector_search import VectorModel
+
 def usage():
     print("usage: " + sys.argv[0] + " -d dictionary-file -p postings-file -q file-of-queries -o output-file-of-results")
 
@@ -15,6 +17,46 @@ def run_search(dict_file, postings_file, queries_file, results_file):
     print('running search on the queries...')
     # This is an empty method
     # Pls implement your code in below
+
+    # Read dictionary into memory
+    dictionary = {}
+
+    # Get term, doc frequncy and postings list pointer from Dictionary
+    f = open(dict_file, 'r')
+    for dictionary_entry in f:
+        elements = dictionary_entry.split()
+        term = elements[0]
+        doc_freq = elements[1]
+        pointer = int(elements[2])
+        dictionary[term] = (int(doc_freq), pointer)
+
+    # Calculate cosine difference and return top scores
+    search_vector_model = VectorModel(dictionary, postings_file)
+
+    # Go through each query
+    with open(queries_file, 'r') as file:
+
+        is_first_line = True
+
+        for query in file:
+            try: 
+                top_k_results = search_vector_model.cosine_score(query)
+                top_k_results = ' '.join(top_k_results)
+
+            except:
+                top_k_results = "INVALID QUERY (something went wrong...)"
+
+            if is_first_line:
+                with open(results_file, "w") as f:
+                    f.write(top_k_results)
+                    f.close()
+                    is_first_line = False
+            else: 
+                with open(results_file, "a") as f:
+                    f.write("\n" + top_k_results)
+                    f.close()
+
+
 
 dictionary_file = postings_file = file_of_queries = output_file_of_results = None
 
