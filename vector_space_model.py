@@ -114,13 +114,12 @@ class VectorSpaceModel:
             # print("postings: ", postings) # key: string, value: a dictionary { term : {docID : term_freq, docID : term_freq ...} }
             # print("==========================================================================")
         
-        doc_len = self.get_log_term_freq_weighted(postings)[0]
-        postings = self.get_log_term_freq_weighted(postings)[1]
+        doc_len, postings = self.get_log_term_freq_weighted(all_doc_ids, postings)
 
         terms.sort()
         self.write_to_disk(terms, term_docFreq, postings, doc_len, total_num_docs)
 
-    def get_log_term_freq_weighted(self, postings):
+    def get_log_term_freq_weighted(self, all_doc_ids, postings):
         """
         Method to calculate weighted = 1 + log(term_frequency)
         Replace term_freq to weighted in postings, and get the length of each document and store in doc_len
@@ -129,9 +128,14 @@ class VectorSpaceModel:
                 postings: a dictionary with string as key and dictionary as value, { term : {docID : term_freq, docID : term_freq ...} }
             
             Returns:
-                A list of doc_len and updated postings
+                doc_len and updated postings
         """
         doc_len = {} # { docID : doc_len, docID : doc_len ... }
+
+        # initialise all doc length to 0
+        for doc_id in all_doc_ids:
+            doc_len[doc_id] = 0 
+
         # normalise term frequency for each document
         for term in postings: # key: string, value: a dictionary { term : {docID : term_freq, docID : term_freq ...} }
             for doc_id in postings[term]:
@@ -143,18 +147,14 @@ class VectorSpaceModel:
                 # print("term_freq: ", term_freq)
                 # print("==========================================================================")
                 log_term_freq_weighted = 1 + math.log(term_freq, 10)
-
-                if doc_id not in doc_len:
-                    doc_len[doc_id] = log_term_freq_weighted * log_term_freq_weighted
-                else:
-                    doc_len[doc_id] += log_term_freq_weighted * log_term_freq_weighted
-
                 postings[term][doc_id] = log_term_freq_weighted # value as { docID : log_term_freq_weighted ... }
-        
+
+                doc_len[int(doc_id)] += log_term_freq_weighted * log_term_freq_weighted
+                
         for doc_id in doc_len:
             doc_len[doc_id] = math.sqrt(doc_len[doc_id]) # { docID : doc_len, docID : doc_len ... }
         
-        return [doc_len, postings]
+        return doc_len, postings
 
     def write_to_disk(self, terms, term_docFreq, postings, doc_len, total_num_docs):
         """
@@ -181,8 +181,6 @@ class VectorSpaceModel:
             content = ""
 
             for doc_id, term_freq in posting.items():
-                # print("doc_id: ", doc_id)
-                # print("term_freq: ", term_freq)
                 content += " (" + str(doc_id) + "," + str(term_freq) + ")" # (docID,term_freq) (docID,term_freq) ...
             new_posting = term + content + "\n" # term (docID,term_freq) (docID,term_freq) ...
             
