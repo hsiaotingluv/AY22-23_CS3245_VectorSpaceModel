@@ -7,7 +7,16 @@ from nltk.stem.porter import PorterStemmer
 
 class VectorSpaceModel:
     """
-    Class that construct and write data from in_dir into out_dict, out_postings, all_doc_ids.txt and document.txt files. 
+    Class that construct and write data from in_dir into out_dict, out_postings, all_doc_ids.txt and document.txt files
+
+    in_dir: input directory containing all documents for indexing
+    out_dict: output file written in the form of [term doc_freq posting_ref]
+    out_postings: output file written in the form of [term (docID, w-tf) (docID, w-tf) ...], 
+                    where w-tf = (1 + log(tf)), 
+                    where tf is the term frequency of the term t in docID
+    all_doc_ids.txt: output file containing the ID of all documents, separated by a single space
+    document.txt: output file written in the form of [total_num_of_doc (docID, len_of_doc) (docID, len_of_doc) ...],
+                    where len_of_doc is the length of the document in vector space 
     """
     def __init__(self, in_dir, out_dict, out_postings):
         """
@@ -21,10 +30,10 @@ class VectorSpaceModel:
     
     def get_all_doc_ids(self):
         """
-        Get and and write all sorted doc ids into all_doc_ids.txt
+        Get and and write all sorted doc IDs into all_doc_ids.txt
 
             Returns:
-                A list of sorted doc ids
+                A list of sorted doc IDs
         """
         total_docs = 0
         max_docs = 7769
@@ -71,7 +80,7 @@ class VectorSpaceModel:
         all_doc_ids = self.get_all_doc_ids()
         total_num_docs = len(all_doc_ids)
         terms = list() # a list of terms
-        term_docFreq = {} # key: string, value: int { term : docFreq }
+        term_doc_freq = {} # key: string, value: int { term : doc_freq }
         postings = {} # key: string, value: a dictionary { term : {docID : term_freq, docID : term_freq ...} }
 
         for doc_id in all_doc_ids:
@@ -91,12 +100,12 @@ class VectorSpaceModel:
                         # add word_token into list of terms
                         if word_token not in terms:
                             terms.append(word_token)
-                            term_docFreq[word_token] = 1 # { term : docFreq }
+                            term_doc_freq[word_token] = 1 # { term : doc_freq }
                             terms_counted.append(word_token)
 
-                        # check if docFreq of word_token is counted for doc_id
+                        # check if doc_freq of word_token is counted for doc_id
                         if word_token not in terms_counted:
-                            term_docFreq[word_token] += 1 # { term : docFreq }
+                            term_doc_freq[word_token] += 1 # { term : doc_freq }
                             terms_counted.append(word_token)
                         
                         # add word_token into posting list
@@ -108,16 +117,11 @@ class VectorSpaceModel:
                                 postings[word_token][doc_id] = 1 # value as { docID : termFreq ... }
                             else:
                                 postings[word_token][doc_id] += 1 # value as { docID : termFreq ... }
-            # print("==========================================================================")
-            # print("term_docFreq: ", term_docFreq) # key: string, value: int { term : docFreq }
-            # print("==========================================================================")
-            # print("postings: ", postings) # key: string, value: a dictionary { term : {docID : term_freq, docID : term_freq ...} }
-            # print("==========================================================================")
         
         doc_len, postings = self.get_log_term_freq_weighted(all_doc_ids, postings)
 
         terms.sort()
-        self.write_to_disk(terms, term_docFreq, postings, doc_len, total_num_docs)
+        self.write_to_disk(terms, term_doc_freq, postings, doc_len, total_num_docs)
 
     def get_log_term_freq_weighted(self, all_doc_ids, postings):
         """
@@ -140,12 +144,6 @@ class VectorSpaceModel:
         for term in postings: # key: string, value: a dictionary { term : {docID : term_freq, docID : term_freq ...} }
             for doc_id in postings[term]:
                 term_freq = int(postings[term][doc_id])
-                # print("==========================================================================")
-                # print("term: ", term)
-                # print("postings[term]: ", postings[term])
-                # print("doc_id: ", doc_id)
-                # print("term_freq: ", term_freq)
-                # print("==========================================================================")
                 log_term_freq_weighted = 1 + math.log(term_freq, 10)
                 postings[term][doc_id] = log_term_freq_weighted # value as { docID : log_term_freq_weighted ... }
 
@@ -156,13 +154,13 @@ class VectorSpaceModel:
         
         return doc_len, postings
 
-    def write_to_disk(self, terms, term_docFreq, postings, doc_len, total_num_docs):
+    def write_to_disk(self, terms, term_doc_freq, postings, doc_len, total_num_docs):
         """
         Method to write into out_dict, out_postings and document.txt
 
             Parameters:
                 terms: a list of string, sorted in ascending alphanumeric order
-                term_docFreq: a dictionary with string as key and int as value, { term : docFreq }
+                term_doc_freq: a dictionary with string as key and int as value, { term : doc_freq }
                 postings: a dictionary with string as key and dictionary as value, { term : {docID : term_freq, docID : term_freq ...} }
                 doc_len: a dictionary with string as key and int as value, { docID : doc_len, docID : doc_len ... }
                 total_num_docs: an int representing the total number of documents
@@ -170,25 +168,26 @@ class VectorSpaceModel:
         """
         print("preapring content for dictionary, postings and documents output files...")
 
-        final_dictionary = "" # term docFreq reference
+        final_dictionary = "" # term doc_freq reference
         final_postings = "" # term (docID,term_freq) (docID,term_freq) ...
         final_document = "" # totalNumDocs (docID,lenOfDoc) (docID,lenOfDoc) ...
         posting_ref = 0
 
         for term in terms:
             posting = postings[term] # {docID : term_freq, docID : term_freq ...}
-            docFreq = term_docFreq[term]
+            doc_freq = term_doc_freq[term]
             content = ""
 
             for doc_id, term_freq in posting.items():
                 content += " (" + str(doc_id) + "," + str(term_freq) + ")" # (docID,term_freq) (docID,term_freq) ...
             new_posting = term + content + "\n" # term (docID,term_freq) (docID,term_freq) ...
             
-            final_dictionary += term + " " + str(docFreq) + " " + str(posting_ref) + "\n" # term docFreq posting_ref
+            final_dictionary += term + " " + str(doc_freq) + " " + str(posting_ref) + "\n" # term doc_freq posting_ref
             final_postings += new_posting
             posting_ref += len(new_posting)
         
         final_document += str(total_num_docs)
+
         for doc_id in doc_len:
             final_document += " (" + str(doc_id) + "," + str(doc_len[doc_id]) + ")" # (docID,lenOfDoc)
 
