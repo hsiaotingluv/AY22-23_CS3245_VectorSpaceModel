@@ -50,8 +50,8 @@ class VectorModel:
                 # Calculate normalised w_td: w_td / length of doc 
                 doc_id = doc[0]
                 w_td = doc[1] 
-                doc_length = self.doc_lengths[doc_id]
-                w_td = w_td / doc_length
+                # doc_length = self.doc_lengths[doc_id]
+                # w_td = w_td / doc_length
 
                 # Calculate the cosine similarity between w_t,q and w_t,d
                 # Add result to scores {}
