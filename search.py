@@ -4,7 +4,7 @@ import nltk
 import sys
 import getopt
 
-from vector_search import VectorModel
+from vector_search import VectorSearchModel
 
 def usage():
     print("usage: " + sys.argv[0] + " -d dictionary-file -p postings-file -q file-of-queries -o output-file-of-results")
@@ -31,7 +31,7 @@ def run_search(dict_file, postings_file, queries_file, results_file):
         dictionary[term] = (int(doc_freq), pointer)
 
     # Calculate cosine difference and return top scores
-    search_vector_model = VectorModel(dictionary, postings_file)
+    search_vector_model = VectorSearchModel(dictionary, postings_file)
 
     # Go through each query
     with open(queries_file, 'r') as file:

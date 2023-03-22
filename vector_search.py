@@ -4,7 +4,7 @@ from nltk.tokenize import word_tokenize
 from nltk.tokenize import sent_tokenize
 from nltk.stem.porter import PorterStemmer
 
-class VectorModel:
+class VectorSearchModel:
 
     def __init__(self, dictionary, postings_file):
         print('Initiating Vectore Space Model...')
