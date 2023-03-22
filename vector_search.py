@@ -42,23 +42,24 @@ class VectorModel:
             # 1. Fetch w_tq 
             w_tq = normalised_query_vectors[term]
             
-            # Fetch postings list of term (as tuples)
-            postings = self.get_postings(term)
+            try: 
+                # Fetch postings list of term (as tuples)
+                postings = self.get_postings(term)
 
-            # 2. For each pair (d, w_td) in postings list:
-            for doc in postings: 
-                # Calculate normalised w_td: w_td / length of doc 
-                doc_id = doc[0]
-                w_td = doc[1] 
-                # doc_length = self.doc_lengths[doc_id]
-                # w_td = w_td / doc_length
+                # 2. For each pair (d, w_td) in postings list:
+                for doc in postings: 
+                    # Calculate normalised w_td: w_td / length of doc 
+                    doc_id = doc[0]
+                    w_td = doc[1] 
 
-                # Calculate the cosine similarity between w_t,q and w_t,d
-                # Add result to scores {}
-                if doc_id not in scores: 
-                    scores[doc_id] = w_tq * w_td
-                else:
-                    scores[doc_id] += w_tq * w_td
+                    # Calculate the cosine similarity between w_t,q and w_t,d
+                    # Add result to scores {}
+                    if doc_id not in scores: 
+                        scores[doc_id] = w_tq * w_td
+                    else:
+                        scores[doc_id] += w_tq * w_td
+            except:
+                pass
  
         # Normalise scores
         for doc_id in scores:
@@ -139,8 +140,11 @@ class VectorModel:
                 tf_weight = 1 + log(term_freq, 10)
 
                 # 2. Calculate idf_weight
-                doc_freq = self.dictionary[t][0]
-                idf_weight = log(N/doc_freq, 10)
+                if t in self.dictionary:
+                    doc_freq = self.dictionary[t][0]
+                    idf_weight = log(N/doc_freq, 10)
+                else: 
+                    idf_weight = 0
 
                 # 3. Calculate tf.idf weighting
                 w_tq = tf_weight * idf_weight
@@ -156,45 +160,4 @@ class VectorModel:
 
         # Return the dictionary of normalised terms
         return normalised_weight_of_terms
-
-    # '''
-    # Calculate the weight of term query
-
-    # Returns a dictionary of terms, with their corresponding normalised w_tq. 
-    # '''
-    # def get_normalised_doc_vectors(self, postings):
-
-    #     sum_of_squares = 0
-    #     weight_of_terms = {} 
-    #     normalised_weight_of_terms = {}
-
-    #     all_doc_ids_file = open('all_doc_ids.txt', 'r')
-    #     ids = all_doc_ids_file.readline()
-    #     N = len(ids.split())
-
-    #     # Add w_t to weight_of_terms
-    #     for t in terms: 
-    #         if t not in weight_of_terms: 
-    #             # 1. Calculate tf_weight
-    #             term_freq = terms.count(t)
-    #             tf_weight = 1 + log(term_freq, 10)
-
-    #             # 2. Calculate idf_weight
-    #             doc_freq = self.dictionary[t][0]
-    #             idf_weight = log(N/doc_freq, 10)
-
-    #             # 3. Calculate tf.idf weighting
-    #             w_tq = tf_weight * idf_weight
-    #             sum_of_squares += w_tq * w_tq
-    #             weight_of_terms[t] = w_tq
-
-    #     length_of_query_vector = sqrt(sum_of_squares)
-        
-    #     # Normalise the vectors 
-    #     for t in weight_of_terms:
-    #         normalised_w_tq = weight_of_terms[t] / length_of_query_vector
-    #         normalised_weight_of_terms[t] = normalised_w_tq
-
-    #     # Return the dictionary of normalised terms
-    #     return normalised_weight_of_terms
     
