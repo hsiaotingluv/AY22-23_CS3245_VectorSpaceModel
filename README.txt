@@ -47,6 +47,17 @@ The method then returns doc_len and an updated postings.
 The method prepares and writes the dictionary, postings and document length into dictionary-file, postings-file and documents.txt respectively. Using a sorted list of terms, this method constructs the dictionary and posting lists in an increasing alphanumeric order. While the content in the documents.txt is sorted in increasing docID order.
 
 ###About Querying
+####Search 
+At the initial phase of running the search command, we read the dictionary file into memory and pass it to the VectorSearchModel instance from the vector_search.py file. This class is the main class which contains the methods for the vector space ranking.
+
+####Vector Space ranking
+In the searching step, we rank documents by cosine score similarity based on tfxidf. The algorithm we use is the optimised version that we have seen in the lecture where we only compute non-zero dimensions. We implement the lnc.ltc ranking scheme (i.e., log tf and idf with cosine normalization for queries documents, and log tf, cosine normalization but no idf for documents.) 
+
+The cosine_score method tokenises the terms, following which it calls the get_normalised_query_vectors method to get the normalised wt of the terms in the query. This is akin to representing the query as a weighted tf-idf vector, but in an optimised way. For each term in the query, we calculate the tf weight and idf weight, and normalise them by dividing them by the query length. 
+
+Then, in the cosine_score method, for each term in the dictionary of normalised query vectors, we fetch the postings list using the get_postings method to retrieve tuples, then calculate the cosine similarity between w_tq and w_td by multiplying the normalised vectors. 
+
+Finally, we normalise the scores by dividing the scores of the docs with their lengths. The results are then sorted and we return the top 10 results. 
 
 
 
@@ -56,7 +67,7 @@ The method prepares and writes the dictionary, postings and document length into
 2. index.py - the main program to run the indexing, which calls vector_space_model.py
 3. vector_space_model.py - contains the methods to index the terms and writes the results into dictionary-file, postings-file, all_doc_ids.txt and document.txt.
 4. search.py - the main program to run the searching, which calls vector_search.py
-5. vector_search.py - contains the methods to parse query and ...
+5. vector_search.py - contains the methods to process queries and carry out the vector space ranking algorithm using tf-idf.
 7. dictionary.txt - a dictionary text file containing [term doc_freq posting_ref]
 8. postings.txt - a posting text file containing [term (docID, w-tf) (docID, w-tf) ...], where w-tf = (1 + log(tf)), and tf is the term frequency of the term t in docID
 9. all_doc_ids.txt - a text file containing all the document IDs
