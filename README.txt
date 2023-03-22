@@ -59,15 +59,13 @@ Then, in the cosine_score method, for each term in the dictionary of normalised 
 
 Finally, we normalise the scores by dividing the scores of the docs with their lengths. The results are then sorted and we return the top 10 results. 
 
-
-
 == Files included with this submission ==
 
 1. README.txt - a summary write up about the program, how to run and how it works
 2. index.py - the main program to run the indexing, which calls vector_space_model.py
 3. vector_space_model.py - contains the methods to index the terms and writes the results into dictionary-file, postings-file, all_doc_ids.txt and document.txt.
 4. search.py - the main program to run the searching, which calls vector_search.py
-5. vector_search.py - contains the methods to process queries and carry out the vector space ranking algorithm using tf-idf.
+5. vector_search.py - contains the methods to process queries and carry out the vector space ranking algorithm using tf-idf
 7. dictionary.txt - a dictionary text file containing [term doc_freq posting_ref]
 8. postings.txt - a posting text file containing [term (docID, w-tf) (docID, w-tf) ...], where w-tf = (1 + log(tf)), and tf is the term frequency of the term t in docID
 9. all_doc_ids.txt - a text file containing all the document IDs
