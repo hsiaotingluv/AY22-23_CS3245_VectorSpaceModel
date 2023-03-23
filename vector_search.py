@@ -15,7 +15,7 @@ class VectorSearchModel:
     '''
     In the searching step, you will need to rank documents by cosine similarity based on tf×idf. 
     
-    In terms of SMART notation of ddd.qqq, you will need to implement the lnc.ltc ranking scheme (i.e., log tf and idf with cosine normalization for queries documents, and log tf, cosine normalization but no idf for documents. 
+    In terms of SMART notation of ddd.qqq, you will need to implement the lnc.ltc ranking scheme (i.e., log tf and idf with cosine normalization for queries documents, and log tf, cosine normalization but no idf for documents.) 
     
     Compute cosine similarity between the query and each document, with the weights follow the tf×idf calculation, where term freq = 1 + log(tf) and inverse document frequency idf = log(N/df) (for queries). That is,
     '''
@@ -48,7 +48,7 @@ class VectorSearchModel:
 
                 # 2. For each pair (d, w_td) in postings list:
                 for doc in postings: 
-                    # Calculate normalised w_td: w_td / length of doc 
+                    # Retrieve normalised w_td
                     doc_id = doc[0]
                     w_td = doc[1] 
 
@@ -66,7 +66,7 @@ class VectorSearchModel:
             scores[doc_id] = scores[doc_id] / self.doc_lengths[doc_id]
 
         # Return top K components of the scores
-        sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+        sorted_scores = sorted(scores.items(), key=lambda x: (-x[1], x[0]))
 
         top_10_keys = [key for key, value in sorted_scores][:10]
         return top_10_keys
