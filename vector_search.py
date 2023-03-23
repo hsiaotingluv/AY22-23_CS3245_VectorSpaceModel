@@ -66,7 +66,8 @@ class VectorSearchModel:
             scores[doc_id] = scores[doc_id] / self.doc_lengths[doc_id]
 
         # Return top K components of the scores
-        sorted_scores = sorted(scores.items(), key=lambda x: (-x[1], x[0]))
+        # sorted_scores = sorted(scores.items(), key=lambda x: (-x[1], x[0]))
+        sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
 
         top_10_keys = [key for key, value in sorted_scores][:10]
         return top_10_keys
