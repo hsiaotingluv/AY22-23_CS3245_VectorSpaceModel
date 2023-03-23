@@ -66,10 +66,10 @@ Finally, we normalise the scores by dividing the scores of the docs with their l
 3. vector_space_model.py - contains the methods to index the terms and writes the results into dictionary-file, postings-file, all_doc_ids.txt and document.txt.
 4. search.py - the main program to run the searching, which calls vector_search.py
 5. vector_search.py - contains the methods to process queries and carry out the vector space ranking algorithm using tf-idf
-7. dictionary.txt - a dictionary text file containing [term doc_freq posting_ref]
-8. postings.txt - a posting text file containing [term (docID, w-tf) (docID, w-tf) ...], where w-tf = (1 + log(tf)), and tf is the term frequency of the term t in docID
-9. all_doc_ids.txt - a text file containing all the document IDs
-10. document.txt - a text file containing [total_num_of_doc (docID, len_of_doc) (docID, len_of_doc) ...], where len_of_doc is the length of the document in vector space
+6. dictionary.txt - a dictionary text file containing [term doc_freq posting_ref]
+7. postings.txt - a posting text file containing [term (docID, w-tf) (docID, w-tf) ...], where w-tf = (1 + log(tf)), and tf is the term frequency of the term t in docID
+8. all_doc_ids.txt - a text file containing all the document IDs
+9. document.txt - a text file containing [total_num_of_doc (docID, len_of_doc) (docID, len_of_doc) ...], where len_of_doc is the length of the document in vector space
 
 == Statement of individual work ==
 
